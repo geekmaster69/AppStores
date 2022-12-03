@@ -1,10 +1,9 @@
 package com.example.stores
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 
-
-data class Store (
+@Entity(tableName = "StoreEntity")
+data class StoreEntity (
   var id: Long = 0,
     var name: String,
     var phone: String = "",
