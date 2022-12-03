@@ -16,9 +16,11 @@ class MainActivity : AppCompatActivity(), OnClickListener {
 
         nbinding.btnSave.setOnClickListener {
 
-            val storeEntity = StoreEntity(name = nbinding.edName.text.toString().trim())
-
-            nadapter.add(storeEntity)
+            val store = StoreEntity(name = nbinding.edName.text.toString().trim())
+            Thread {
+                StoreApplication.database.storDao().addtStore(store)
+            }.start()
+            nadapter.add(store)
         }
 
         setupRecyclerView()
