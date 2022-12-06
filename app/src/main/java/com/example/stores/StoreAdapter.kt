@@ -4,7 +4,10 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.stores.databinding.ItemStoreBinding
 
 class StoreAdapter(private var stores: MutableList<StoreEntity>, private var listener: OnClickListener):
@@ -24,6 +27,12 @@ class StoreAdapter(private var stores: MutableList<StoreEntity>, private var lis
             setListener(store)
             binding.tvName.text = store.name
             binding.cbFavorite.isChecked = store.isFavorite
+
+            Glide.with(mContext)
+                .load(store.photoUrl)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .centerCrop()
+                .into(binding.imgPhoto)
         }
     }
 
@@ -35,8 +44,11 @@ class StoreAdapter(private var stores: MutableList<StoreEntity>, private var lis
     }
 
     fun add(storeEntity: StoreEntity) {
-        stores.add(storeEntity)
-        notifyDataSetChanged()
+        if (!stores.contains(storeEntity)){
+            stores.add(storeEntity)
+            notifyItemChanged(stores.size-1)
+        }
+
     }
 
     fun update(storeEntity: StoreEntity) {
@@ -59,7 +71,7 @@ class StoreAdapter(private var stores: MutableList<StoreEntity>, private var lis
         val binding = ItemStoreBinding.bind(view)
 
         fun setListener(storeEntity: StoreEntity){
-            binding.root.setOnClickListener { listener.onClick(storeEntity) }
+            binding.root.setOnClickListener { listener.onClick(storeEntity.id) }
             binding.cbFavorite.setOnClickListener {
                 listener.onFavoriteStore(storeEntity)
             }

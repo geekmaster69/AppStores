@@ -7,7 +7,7 @@ import com.example.stores.databinding.ActivityMainBinding
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 
-class MainActivity : AppCompatActivity(), OnClickListener {
+class MainActivity : AppCompatActivity(), OnClickListener, MainAux {
     private lateinit var nbinding: ActivityMainBinding
     private lateinit var nadapter: StoreAdapter
     private lateinit var nGridLayout: GridLayoutManager
@@ -16,14 +16,21 @@ class MainActivity : AppCompatActivity(), OnClickListener {
         nbinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(nbinding.root)
 
-        nbinding.btnSave.setOnClickListener {
-            val store = StoreEntity(name = nbinding.edName.text.toString().trim())
-            Thread {
-                StoreApplication.database.storDao().addtStore(store)
-            }.start()
-            nadapter.add(store)
+        nbinding.fab.setOnClickListener {
+            launchEditFragment()
         }
         setupRecyclerView()
+    }
+
+    private fun launchEditFragment(args: Bundle? = null) {
+        val fragment = EditStoreFragment()
+        if (args != null) fragment.arguments = args
+        val fragmentManager = supportFragmentManager
+        val fragmentTransaction = fragmentManager.beginTransaction()
+        fragmentTransaction.addToBackStack(null)
+        fragmentTransaction.add(R.id.containerMain, fragment)
+        fragmentTransaction.commit()
+        hideFab()
     }
 
     private fun setupRecyclerView() {
@@ -49,7 +56,10 @@ class MainActivity : AppCompatActivity(), OnClickListener {
     }
 
     //OnClickListener
-    override fun onClick(storeEntity: StoreEntity) {
+    override fun onClick(storeId: Long) {
+        val args = Bundle()
+        args.putLong(getString(R.string.arg_id), storeId)
+        launchEditFragment(args)
 
     }
 
@@ -71,6 +81,20 @@ class MainActivity : AppCompatActivity(), OnClickListener {
             }
         }
     }
+    /*
+    *MainAux
+    */
 
+    override fun hideFab(isVisible: Boolean) {
+        if (isVisible) nbinding.fab.show() else nbinding.fab.hide()
+    }
+
+    override fun addStore(storeEntity: StoreEntity) {
+        nadapter.add(storeEntity)
+    }
+
+    override fun update(storeEntity: StoreEntity) {
+        TODO("Not yet implemented")
+    }
 
 }
