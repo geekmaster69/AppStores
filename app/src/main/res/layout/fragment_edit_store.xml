@@ -84,6 +84,7 @@
           android:layout_height="wrap_content">
 
           <com.google.android.material.textfield.TextInputLayout
+              android:id="@+id/tilPhotoUrl"
               android:layout_width="0dp"
               android:layout_height="wrap_content"
               style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -91,7 +92,6 @@
               app:endIconMode="clear_text"
               app:startIconDrawable="@drawable/ic_link"
               android:layout_weight="1">
-              
               <com.google.android.material.textfield.TextInputEditText
                   android:id="@+id/etPhotoUrl"
                   android:textAppearance="?attr/textAppearanceCaption"

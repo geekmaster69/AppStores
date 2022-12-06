@@ -1,10 +1,16 @@
 package com.example.stores
 
+import android.content.DialogInterface
+import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.stores.databinding.ActivityMainBinding
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.uiThread
 
 class MainActivity : AppCompatActivity(), OnClickListener, MainAux {
@@ -35,7 +41,7 @@ class MainActivity : AppCompatActivity(), OnClickListener, MainAux {
 
     private fun setupRecyclerView() {
         nadapter = StoreAdapter(mutableListOf(), this)
-        nGridLayout = GridLayoutManager(this, 2)
+        nGridLayout = GridLayoutManager(this, resources.getInteger(R.integer.main_columns))
         getStores()
 
         nbinding.recyclerView.apply {
@@ -60,7 +66,6 @@ class MainActivity : AppCompatActivity(), OnClickListener, MainAux {
         val args = Bundle()
         args.putLong(getString(R.string.arg_id), storeId)
         launchEditFragment(args)
-
     }
 
     override fun onFavoriteStore(storeEntity: StoreEntity) {
@@ -68,18 +73,62 @@ class MainActivity : AppCompatActivity(), OnClickListener, MainAux {
         doAsync {
             StoreApplication.database.storDao().updateStore(storeEntity)
             uiThread {
-                nadapter.update(storeEntity)
+                updateStore(storeEntity)
             }
         }
     }
 
     override fun onDeleteStore(storeEntity: StoreEntity) {
+
+        val items = resources.getStringArray(R.array.array_options_item)
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.dialog_options_title)
+            .setItems(items) { dialog, which ->
+                when(which){
+                    0 -> confirmDelete(storeEntity)
+
+                    1 -> dial(storeEntity.phone)
+
+                    2 -> goToWebsite(storeEntity.website)
+                }
+            }
+            .show()
+    }
+
+    private fun confirmDelete(storeEntity: StoreEntity){
         doAsync {
             StoreApplication.database.storDao().deleteStore(storeEntity)
             uiThread {
                 nadapter.delete(storeEntity)
             }
         }
+    }
+
+    private fun dial(phone: String) {
+        val callIntent = Intent().apply {
+            action = Intent.ACTION_DIAL
+            data = Uri.parse("tel:$phone")
+        }
+        starIntent(callIntent)
+    }
+
+    private fun goToWebsite(webSite: String){
+        if (webSite.isEmpty()){
+            Toast.makeText(this, R.string.main_error_no_website, Toast.LENGTH_LONG).show()
+        }else {
+            val websiteIntent = Intent().apply {
+                action = Intent.ACTION_VIEW
+                data = Uri.parse(webSite)
+            }
+            starIntent(websiteIntent)
+        }
+    }
+
+    private fun starIntent(intent: Intent){
+        if (intent.resolveActivity(packageManager) != null)
+            startActivity(intent)
+        else
+            Toast.makeText(this, R.string.main_error_no_resolve, Toast.LENGTH_SHORT).show()
     }
     /*
     *MainAux
@@ -93,8 +142,7 @@ class MainActivity : AppCompatActivity(), OnClickListener, MainAux {
         nadapter.add(storeEntity)
     }
 
-    override fun update(storeEntity: StoreEntity) {
-        TODO("Not yet implemented")
+    override fun updateStore(storeEntity: StoreEntity) {
+        nadapter.update(storeEntity)
     }
-
 }

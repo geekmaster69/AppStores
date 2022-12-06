@@ -12,4 +12,13 @@
     <string name="edit_store_title_add">Crear tienda</string>
     <string name="menu_save">Save</string>
     <string name="arg_id">key_id</string>
+    <string name="dialog_delete_title">Eliminar tienda?</string>
+    <string name="dialog_positive_button">Eliminar</string>
+    <string name="dialog_negative_button">Cacelar</string>
+    <string name="dialog_options_title">Que quieres hacer?</string>
+    <string name="main_error_no_website">La tienda no tiene sitio web</string>
+    <string name="main_error_no_resolve">No se encontro una aplicaion disponible</string>
+    <string name="main_array_options_item_delete">Eliminar</string>
+    <string name="main_array_options_item_call">Lllamar</string>
+    <string name="main_array_options_item_goWebsite">Ir ak sitio web</string>
 </resources>
