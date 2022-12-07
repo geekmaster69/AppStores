@@ -60,11 +60,7 @@ class StoreAdapter(private var stores: MutableList<StoreEntity>, private var lis
         }
     }
     fun delete(storeEntity: StoreEntity) {
-        val index = stores.indexOf(storeEntity)
-        if (index != -1){
-            stores.removeAt(index)
-            notifyItemRemoved(index)
-        }
+
     }
 
     inner class ViewHolder(view: View): RecyclerView.ViewHolder(view) {

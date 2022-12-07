@@ -82,7 +82,7 @@ class EditStoreFragment : Fragment() {
 
     private fun getStore(id: Long) {
         doAsync {
-            mStoreEntity = StoreApplication.database.storDao().getStoreById(id)
+            mStoreEntity = StoreApplication.database.storeDao().getStoreById(id)
             uiThread { if (mStoreEntity != null) setUiStore(mStoreEntity!!)}
         }
     }
@@ -119,8 +119,8 @@ class EditStoreFragment : Fragment() {
                     }
 
                     doAsync {
-                        if (mIsEditMode) StoreApplication.database.storDao().updateStore( mStoreEntity!!)
-                        else mStoreEntity!!.id = StoreApplication.database.storDao().addStore( mStoreEntity!!)
+                        if (mIsEditMode) StoreApplication.database.storeDao().updateStore( mStoreEntity!!)
+                        else mStoreEntity!!.id = StoreApplication.database.storeDao().addStore( mStoreEntity!!)
 
                         uiThread {
                             hideKeyboard()

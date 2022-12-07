@@ -16,8 +16,7 @@ import com.example.stores.mainModule.adapter.OnClickListener
 import com.example.stores.mainModule.adapter.StoreAdapter
 import com.example.stores.mainModule.viewModel.MainViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.uiThread
+
 
 class MainActivity : AppCompatActivity(), OnClickListener, MainAux {
     private lateinit var nbinding: ActivityMainBinding
@@ -60,25 +59,12 @@ class MainActivity : AppCompatActivity(), OnClickListener, MainAux {
     private fun setupRecyclerView() {
         nadapter = StoreAdapter(mutableListOf(), this)
         nGridLayout = GridLayoutManager(this, resources.getInteger(R.integer.main_columns))
-//        getStores()
-
         nbinding.recyclerView.apply {
             setHasFixedSize(true)
             layoutManager = nGridLayout
             adapter = nadapter
         }
     }
-
-//    private fun getStores(){
-//
-//        doAsync {
-//            val stores = StoreApplication.database.storDao().getAllStores()
-//            uiThread {
-//                nadapter.setStores(stores)
-//            }
-//        }
-//    }
-
     //OnClickListener
     override fun onClick(storeId: Long) {
         val args = Bundle()
@@ -87,17 +73,11 @@ class MainActivity : AppCompatActivity(), OnClickListener, MainAux {
     }
 
     override fun onFavoriteStore(storeEntity: StoreEntity) {
-        storeEntity.isFavorite = !storeEntity.isFavorite
-        doAsync {
-            StoreApplication.database.storDao().updateStore(storeEntity)
-            uiThread {
-                updateStore(storeEntity)
-            }
-        }
+
+        mMainViewModel.updateStore(storeEntity)
     }
 
     override fun onDeleteStore(storeEntity: StoreEntity) {
-
         val items = resources.getStringArray(R.array.array_options_item)
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.dialog_options_title)
@@ -114,12 +94,7 @@ class MainActivity : AppCompatActivity(), OnClickListener, MainAux {
     }
 
     private fun confirmDelete(storeEntity: StoreEntity){
-        doAsync {
-            StoreApplication.database.storDao().deleteStore(storeEntity)
-            uiThread {
-                nadapter.delete(storeEntity)
-            }
-        }
+        mMainViewModel.deleteStore(storeEntity)
     }
 
     private fun dial(phone: String) {
