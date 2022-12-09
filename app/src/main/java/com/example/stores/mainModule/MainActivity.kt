@@ -8,22 +8,23 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.stores.*
-import com.example.stores.common.utils.MainAux
 import com.example.stores.common.entities.StoreEntity
 import com.example.stores.databinding.ActivityMainBinding
 import com.example.stores.editModule.EditStoreFragment
+import com.example.stores.editModule.viewModel.EditStoreViewModel
 import com.example.stores.mainModule.adapter.OnClickListener
 import com.example.stores.mainModule.adapter.StoreAdapter
 import com.example.stores.mainModule.viewModel.MainViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 
-class MainActivity : AppCompatActivity(), OnClickListener, MainAux {
+class MainActivity : AppCompatActivity(), OnClickListener {
     private lateinit var nbinding: ActivityMainBinding
     private lateinit var nadapter: StoreAdapter
     private lateinit var nGridLayout: GridLayoutManager
     //MVVM
     private lateinit var mMainViewModel: MainViewModel
+    private lateinit var mEditStoreViewModel: EditStoreViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         nbinding = ActivityMainBinding.inflate(layoutInflater)
@@ -43,17 +44,26 @@ class MainActivity : AppCompatActivity(), OnClickListener, MainAux {
         mMainViewModel.getStores().observe(this) { stores ->
             nadapter.setStores(stores)
         }
+
+        mEditStoreViewModel = ViewModelProvider(this).get(EditStoreViewModel::class.java)
+        mEditStoreViewModel.getShowFab().observe(this){ isVisible ->
+            if (isVisible) nbinding.fab.show() else nbinding.fab.hide()
+        }
+
+        mEditStoreViewModel.getStoreSelected().observe(this){ storeEntity ->
+            nadapter.add(storeEntity)
+        }
     }
 
-    private fun launchEditFragment(args: Bundle? = null) {
+    private fun launchEditFragment(storeEntity: StoreEntity = StoreEntity()) {
+        mEditStoreViewModel.setShowFab(false)
+        mEditStoreViewModel.setStoreSelect(storeEntity)
         val fragment = EditStoreFragment()
-        if (args != null) fragment.arguments = args
         val fragmentManager = supportFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
         fragmentTransaction.addToBackStack(null)
         fragmentTransaction.add(R.id.containerMain, fragment)
         fragmentTransaction.commit()
-        hideFab()
     }
 
     private fun setupRecyclerView() {
@@ -66,10 +76,9 @@ class MainActivity : AppCompatActivity(), OnClickListener, MainAux {
         }
     }
     //OnClickListener
-    override fun onClick(storeId: Long) {
-        val args = Bundle()
-        args.putLong(getString(R.string.arg_id), storeId)
-        launchEditFragment(args)
+    override fun onClick(storeEntity: StoreEntity) {
+
+        launchEditFragment(storeEntity)
     }
 
     override fun onFavoriteStore(storeEntity: StoreEntity) {
@@ -122,20 +131,5 @@ class MainActivity : AppCompatActivity(), OnClickListener, MainAux {
             startActivity(intent)
         else
             Toast.makeText(this, R.string.main_error_no_resolve, Toast.LENGTH_SHORT).show()
-    }
-    /*
-    *MainAux
-    */
-
-    override fun hideFab(isVisible: Boolean) {
-        if (isVisible) nbinding.fab.show() else nbinding.fab.hide()
-    }
-
-    override fun addStore(storeEntity: StoreEntity) {
-        nadapter.add(storeEntity)
-    }
-
-    override fun updateStore(storeEntity: StoreEntity) {
-        nadapter.update(storeEntity)
     }
 }

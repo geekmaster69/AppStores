@@ -17,7 +17,6 @@ class StoreAdapter(private var stores: MutableList<StoreEntity>, private var lis
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         mContext = parent.context
-
         val view = LayoutInflater.from(mContext).inflate(R.layout.item_store, parent, false)
         return ViewHolder(view)
     }
@@ -45,22 +44,22 @@ class StoreAdapter(private var stores: MutableList<StoreEntity>, private var lis
     }
 
     fun add(storeEntity: StoreEntity) {
-        if (!stores.contains(storeEntity)){
-            stores.add(storeEntity)
-            notifyItemChanged(stores.size-1)
+        if (storeEntity.id != 0L) {
+            if (!stores.contains(storeEntity)){
+                stores.add(storeEntity)
+                notifyItemChanged(stores.size-1)
+            } else{
+                update(storeEntity)
+            }
         }
-
     }
 
-    fun update(storeEntity: StoreEntity) {
+    private fun update(storeEntity: StoreEntity) {
         val index = stores.indexOf(storeEntity)
         if (index != -1){
             stores.set(index, storeEntity)
             notifyItemChanged(index)
         }
-    }
-    fun delete(storeEntity: StoreEntity) {
-
     }
 
     inner class ViewHolder(view: View): RecyclerView.ViewHolder(view) {
@@ -68,7 +67,7 @@ class StoreAdapter(private var stores: MutableList<StoreEntity>, private var lis
         val binding = ItemStoreBinding.bind(view)
 
         fun setListener(storeEntity: StoreEntity){
-            binding.root.setOnClickListener { listener.onClick(storeEntity.id) }
+            binding.root.setOnClickListener { listener.onClick(storeEntity) }
             binding.cbFavorite.setOnClickListener {
                 listener.onFavoriteStore(storeEntity)
             }
