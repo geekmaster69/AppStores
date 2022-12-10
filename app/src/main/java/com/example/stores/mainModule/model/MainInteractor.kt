@@ -20,6 +20,8 @@ class MainInteractor {
         }
     }
 
+    //https://supermarquer.free.beeceptor.com
+
     fun deleteStore(storeEntity: StoreEntity, callback: (StoreEntity)-> Unit){
         doAsync {
             StoreApplication.database.storeDao().deleteStore(storeEntity)
