@@ -27,10 +27,6 @@ class StoreApplication: Application() {
         //Volley
         storeAPI = StoreApi.getInstance(this)
 
-        ////   :(
 
-
-
-        //////sdf/sdfs/dfsdf/sdfs/dfs/df
     }
 }
