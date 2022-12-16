@@ -11,7 +11,7 @@ class StoreApi constructor(context: Context) {
         @Volatile
         private var INSTANCE: StoreApi? = null
 
-        fun getInstance(context: Context) = INSTANCE?: synchronized(this){
+        fun getInstance(context: Context) = INSTANCE ?: synchronized(this){
             INSTANCE ?: StoreApi(context).also { INSTANCE = it }
         }
 
