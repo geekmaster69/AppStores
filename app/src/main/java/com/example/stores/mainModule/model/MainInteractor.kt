@@ -18,6 +18,7 @@ class MainInteractor {
         val url = Constants.STORES_URL + Constants.GET_ALL_PATH
 
         val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, url, null, { response ->
+
             Log.i("Response", response.toString())
 
             val status = response.getInt(Constants.STATUS_PROPERTY)
