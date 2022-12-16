@@ -26,5 +26,7 @@ class StoreApplication: Application() {
             .build()
         //Volley
         storeAPI = StoreApi.getInstance(this)
+
+        ////   :(
     }
 }
