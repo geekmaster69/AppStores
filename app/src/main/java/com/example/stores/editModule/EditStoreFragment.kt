@@ -13,9 +13,11 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.stores.R
 import com.example.stores.common.entities.StoreEntity
+import com.example.stores.common.utils.TypeError
 import com.example.stores.databinding.FragmentEditStoreBinding
 import com.example.stores.editModule.viewModel.EditStoreViewModel
 import com.example.stores.mainModule.MainActivity
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 
 class EditStoreFragment : Fragment() {
@@ -72,7 +74,18 @@ class EditStoreFragment : Fragment() {
                 }
             }
         }
+        mEditStoreViewModel.getTypeError().observe(viewLifecycleOwner){
+            val msgRes = when(it){
+                TypeError.GET -> getString(R.string.main_error_get)
+                TypeError.INSERT -> getString(R.string.main_error_insert)
+                TypeError.UPDATE -> getString(R.string.main_error_update)
+                TypeError.DELETE -> getString(R.string.main_error_delete)
+                else -> getString(R.string.main_error_unknow)
+            }
+            Snackbar.make(nBinding.root, msgRes, Snackbar.LENGTH_LONG).show()
+        }
     }
+
 
     private fun setupActionBar() {
         mActivity = activity as? MainActivity

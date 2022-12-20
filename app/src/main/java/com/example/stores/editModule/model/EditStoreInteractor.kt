@@ -5,6 +5,8 @@ import com.example.stores.StoreApplication
 import com.example.stores.common.entities.StoreEntity
 import com.example.stores.common.utils.StoresException
 import com.example.stores.common.utils.TypeError
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class EditStoreInteractor {
 
@@ -12,13 +14,13 @@ class EditStoreInteractor {
         return StoreApplication.database.storeDao().getStoreById(id)
     }
 
-    suspend fun saveStore(storeEntity: StoreEntity){
+    suspend fun saveStore(storeEntity: StoreEntity) = withContext(Dispatchers.IO){
         val result = StoreApplication.database.storeDao().addStore(storeEntity)
         if (result == 0L) throw StoresException(TypeError.INSERT)
 
     }
 
-    suspend fun updateStore(storeEntity: StoreEntity){
+    suspend fun updateStore(storeEntity: StoreEntity) = withContext(Dispatchers.IO){
         val result = StoreApplication.database.storeDao().updateStore(storeEntity)
         if (result == 0) throw StoresException(TypeError.UPDATE)
 
