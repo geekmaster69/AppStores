@@ -11,6 +11,9 @@ object Constants {
     const val SUCCES = 1
     const val ERROR = 2
 
+    const val SHOW = true
+    const val HIDE = false
+
 
 
 

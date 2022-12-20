@@ -1,27 +1,26 @@
 package com.example.stores.editModule.model
 
+import androidx.lifecycle.LiveData
 import com.example.stores.StoreApplication
 import com.example.stores.common.entities.StoreEntity
-import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.uiThread
+import com.example.stores.common.utils.StoresException
+import com.example.stores.common.utils.TypeError
 
 class EditStoreInteractor {
 
-    fun saveStore(storeEntity: StoreEntity, callback: (Long)-> Unit){
-        doAsync {
-            val newId = StoreApplication.database.storeDao().addStore(storeEntity)
-            uiThread {
-                callback(newId)
-            }
-        }
+    fun getStoreById(id: Long): LiveData<StoreEntity>{
+        return StoreApplication.database.storeDao().getStoreById(id)
     }
 
-    fun updateStore(storeEntity: StoreEntity, callback: (StoreEntity)-> Unit){
-        doAsync {
-            StoreApplication.database.storeDao().updateStore(storeEntity)
-            uiThread {
-                callback(storeEntity)
-            }
-        }
+    suspend fun saveStore(storeEntity: StoreEntity){
+        val result = StoreApplication.database.storeDao().addStore(storeEntity)
+        if (result == 0L) throw StoresException(TypeError.INSERT)
+
+    }
+
+    suspend fun updateStore(storeEntity: StoreEntity){
+        val result = StoreApplication.database.storeDao().updateStore(storeEntity)
+        if (result == 0) throw StoresException(TypeError.UPDATE)
+
     }
 }

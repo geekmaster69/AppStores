@@ -49,8 +49,8 @@ class EditStoreFragment : Fragment() {
 
     private fun setupViewModel() {
         mEditStoreViewModel.getStoreSelected().observe(viewLifecycleOwner){
-            mStoreEntity = it
-            if (it.id != 0L){
+            mStoreEntity = it ?: StoreEntity()
+            if (it != null){
                 mIsEditMode = true
                 setUiStore(it)
             }else{
@@ -63,17 +63,11 @@ class EditStoreFragment : Fragment() {
             hideKeyboard()
 
             when(result){
-
-                is Long ->{
-                    mStoreEntity.id = result
-                    mEditStoreViewModel.setStoreSelect(mStoreEntity)
-                    Toast.makeText(mActivity, "La tienda se agrego correctamente", Toast.LENGTH_SHORT).show()
-                    mActivity?.onBackPressed()
-                }
-
                 is StoreEntity ->{
+                    val msgRes = if (result.id == 0L) "La tienda se agrego correctamente"
+                                 else "Se actualizo la tienda"
                     mEditStoreViewModel.setStoreSelect(mStoreEntity)
-                    Toast.makeText(activity, "Se actualizo la tienda", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(activity, msgRes, Toast.LENGTH_SHORT).show()
                     mActivity?.onBackPressed()
                 }
             }
@@ -141,7 +135,8 @@ class EditStoreFragment : Fragment() {
                         photoUrl = nBinding.etPhotoUrl.text.toString().trim()
                     }
 
-                    if (mIsEditMode) mEditStoreViewModel.updateStore(mStoreEntity)
+                    if (mIsEditMode)
+                        mEditStoreViewModel.updateStore(mStoreEntity)
                     else mEditStoreViewModel.saveStore(mStoreEntity)
 
                 }

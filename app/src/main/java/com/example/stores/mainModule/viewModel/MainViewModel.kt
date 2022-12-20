@@ -3,47 +3,51 @@ package com.example.stores.mainModule.viewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.stores.common.entities.StoreEntity
+import com.example.stores.common.utils.Constants
+import com.example.stores.common.utils.StoresException
+import com.example.stores.common.utils.TypeError
 import com.example.stores.mainModule.model.MainInteractor
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlin.reflect.typeOf
 
 class MainViewModel: ViewModel() {
 
     private var interactor: MainInteractor = MainInteractor()
-    private var storeLIst: MutableList<StoreEntity> = mutableListOf()
+    var isLoading = MutableLiveData<Boolean>()
 
     fun getStores(): LiveData<MutableList<StoreEntity>> {
         return stores
     }
+    private val typeError: MutableLiveData<TypeError> = MutableLiveData()
 
-    private val stores: MutableLiveData<MutableList<StoreEntity>> by lazy{
-        MutableLiveData<MutableList<StoreEntity>>().also { loadStores() }
-    }
+    fun getTypeError(): MutableLiveData<TypeError> = typeError
 
-    private fun loadStores(){
-        interactor.getStores {
-            stores.value = it
-            storeLIst = it
+    private val stores = interactor.stores
 
-        }
-    }
 
      fun deleteStore(storeEntity: StoreEntity){
-        interactor.deleteStore(storeEntity){
-            val index = storeLIst.indexOf(storeEntity)
-            if (index != -1){
-                storeLIst.removeAt(index)
-                stores.value = storeLIst
-            }
-        }
+
+         executeAction { interactor.deleteStore(storeEntity) }
     }
 
      fun updateStore(storeEntity: StoreEntity){
+
          storeEntity.isFavorite = !storeEntity.isFavorite
-        interactor.updateStore(storeEntity){
-            val index = storeLIst.indexOf(storeEntity)
-            if (index != -1){
-                storeLIst.set(index, storeEntity)
-                stores.value = storeLIst
+         executeAction { interactor.updateStore(storeEntity) }
+    }
+
+    private fun executeAction(block: suspend  () -> Unit): Job {
+        return viewModelScope.launch {
+            isLoading.postValue(Constants.SHOW)
+            try {
+                block()
+            }catch (e: StoresException){
+                typeError.value = e.typeError
+            }finally {
+                isLoading.postValue(Constants.HIDE)
             }
         }
     }

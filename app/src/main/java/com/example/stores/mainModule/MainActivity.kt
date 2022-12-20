@@ -1,26 +1,31 @@
 package com.example.stores.mainModule
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.stores.*
 import com.example.stores.common.entities.StoreEntity
+import com.example.stores.common.utils.TypeError
 import com.example.stores.databinding.ActivityMainBinding
 import com.example.stores.editModule.EditStoreFragment
 import com.example.stores.editModule.viewModel.EditStoreViewModel
 import com.example.stores.mainModule.adapter.OnClickListener
 import com.example.stores.mainModule.adapter.StoreAdapter
+import com.example.stores.mainModule.adapter.StoreListAdapter
 import com.example.stores.mainModule.viewModel.MainViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 
 
 class MainActivity : AppCompatActivity(), OnClickListener {
     private lateinit var nbinding: ActivityMainBinding
-    private lateinit var nadapter: StoreAdapter
+    private lateinit var nadapter: StoreListAdapter
     private lateinit var nGridLayout: GridLayoutManager
     //MVVM
     private lateinit var mMainViewModel: MainViewModel
@@ -42,16 +47,27 @@ class MainActivity : AppCompatActivity(), OnClickListener {
     private fun setupViewModel() {
         mMainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         mMainViewModel.getStores().observe(this) { stores ->
-            nadapter.setStores(stores)
+            nbinding.progressBar.visibility = View.GONE
+            nadapter.submitList(stores)
+        }
+        mMainViewModel.isLoading.observe(this){
+            nbinding.progressBar.visibility = if (it) View.VISIBLE else View.GONE
+        }
+
+        mMainViewModel.getTypeError().observe(this){
+            val msgRes = when(it){
+                TypeError.GET -> getString(R.string.main_error_get)
+                TypeError.INSERT -> getString(R.string.main_error_insert)
+                TypeError.UPDATE -> getString(R.string.main_error_update)
+                TypeError.DELETE -> getString(R.string.main_error_delete)
+                else -> getString(R.string.main_error_unknow)
+            }
+            Snackbar.make(nbinding.root, msgRes, Snackbar.LENGTH_LONG).show()
         }
 
         mEditStoreViewModel = ViewModelProvider(this).get(EditStoreViewModel::class.java)
         mEditStoreViewModel.getShowFab().observe(this){ isVisible ->
             if (isVisible) nbinding.fab.show() else nbinding.fab.hide()
-        }
-
-        mEditStoreViewModel.getStoreSelected().observe(this){ storeEntity ->
-            nadapter.add(storeEntity)
         }
     }
 
@@ -67,7 +83,7 @@ class MainActivity : AppCompatActivity(), OnClickListener {
     }
 
     private fun setupRecyclerView() {
-        nadapter = StoreAdapter(mutableListOf(), this)
+        nadapter = StoreListAdapter( this)
         nGridLayout = GridLayoutManager(this, resources.getInteger(R.integer.main_columns))
         nbinding.recyclerView.apply {
             setHasFixedSize(true)
